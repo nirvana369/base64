@@ -25,14 +25,16 @@ mops test
 ```sh
 import Base64 "mo:base64";
 ```
-Takes a byte array and returns a base64 string
+Takes a data by format type (text/ byte array) and returns a base64 string
 
 ```sh
-Base64.encode(data : [Nat8]) : Text
+Base64.encode(data : FormatType, isSupportURI : Bool) : Text
 ```
+
 Takes a base64 string and returns length of byte array
+
 ```sh
-Base64.decode(base64 : Text, isSupportUrlDecode : Bool) : [Nat8]
+Base64.decode(base64 : Text, isSupportURI : Bool) : [Nat8]
 ```
 
 ## License

@@ -1,0 +1,10 @@
+[package]
+name = "base64"
+version = "1.0.0"
+description = "Base64 implementation for Motoko"
+repository = "https://github.com/nirvana369/base64"
+keywords = [ "base64", "encoding", "decoding", "urldecode" ]
+license = "MIT"
+
+[dependencies]
+test = "2.0.0"
