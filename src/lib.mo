@@ -1,21 +1,73 @@
-import Base64 "./base64";
+/*******************************************************************
+* Copyright         : 2024 nirvana369
+* File Name         : v2engine.mo
+* Description       : Base64 library interface
+*                    
+* Revision History  :
+* Date				Author    		Comments
+* ---------------------------------------------------------------------------
+* 10/07/2024		nirvana369 		Implement.
+* 10/08/2024        nirvana369      Implement base64 factory
+******************************************************************/
+
+import Types "./types";
+import EngineV1 "./base64v1";
+import EngineV2 "./base64v2";
+import Text "mo:base/Text";
 
 module {
 
-    public type FormatType = Base64.FormatType;
-    
-    public func encode(data : FormatType, isSupportURI : Bool) : Text {
-        let base64 = Base64.Base64(?isSupportURI);
-        base64.encode(data);
+    public type FormatType = Types.FormatType;
+
+    public type Version = {
+        #version : Text;
+        #ver : Text;
+        #v : Text;
     };
 
-    public func decode(b64 : Text, isSupportURI : Bool) : [Nat8] {
-        let base64 = Base64.Base64(?isSupportURI);
-        base64.decode(b64);
-    };
+    public let V1 = Types.V1;
+    public let V2 = Types.V2;
 
-    public func isValid(b64 : Text, isSupportURI : Bool) : Bool {
-        let base64 = Base64.Base64(?isSupportURI);
-        base64.isValid(b64);
+    public class Base64(version : Version, isSupportURI : ?Bool) {
+
+        let engine = switch (version) {
+            case (#version(index)) {
+                if (index == V1) {
+                    EngineV1.Base64(isSupportURI);
+                } else {
+                    EngineV2.Base64(isSupportURI);
+                };
+            };
+            case (#ver(index)) {
+                if (index == V1) {
+                    EngineV1.Base64(isSupportURI);
+                } else {
+                    EngineV2.Base64(isSupportURI);
+                };
+            };
+            case (#v(index)) {
+                if (index == V1) {
+                    EngineV1.Base64(isSupportURI);
+                } else {
+                    EngineV2.Base64(isSupportURI);
+                };
+            };
+        };
+
+        public func decode (b64 : Text) : [Nat8] {
+            engine.decode(b64);
+        };
+
+        public func encode (data : Types.FormatType) : Text {
+            engine.encode(data);
+        };
+
+        public func isValid(b64 : Text) : Bool {
+            engine.isValid(b64);
+        };
+
+        public func setSupportURI(isSupportURI : Bool) {
+            engine.setSupportURI(isSupportURI);
+        };
     };
 }

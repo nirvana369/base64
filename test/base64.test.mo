@@ -1,3 +1,14 @@
+/*******************************************************************
+* Copyright         : 2024 nirvana369
+* File Name         : base64.test.mo
+* Description       : Base64 version 1.
+*                    
+* Revision History  :
+* Date				Author    		Comments
+* ---------------------------------------------------------------------------
+* 10/07/2024		nirvana369 		Add test case
+******************************************************************/
+
 import {test; suite} "mo:test";
 import Blob "mo:base/Blob";
 import Text "mo:base/Text";
@@ -7,11 +18,14 @@ import Array "mo:base/Array";
 import Nat8 "mo:base/Nat8";
 import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
-import Base64 "../src";
+import {Base64 = Base64Engine; V1; V2} "../src";
 
 actor {
 
     public func runTests() : async () {
+
+        let version = V2;
+        let Base64 = Base64Engine(#v version, ?false); 
     
         suite("Base64", func() {
             let encodeTestVectors = [
@@ -37,7 +51,8 @@ actor {
 
             test("encode", func() {
                 for (x in encodeTestVectors.vals()) {
-                    assert(Base64.encode(#text (x.input), x.isSupportURI) == x.output);
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.encode(#text (x.input)) == x.output);
                 };
             });
 
@@ -82,13 +97,15 @@ actor {
 
             test("decode", func() {
                 for (x in decodeTestVectors.vals()) {
-                    assert(Option.get(Text.decodeUtf8(Blob.fromArray(Base64.decode(x.input, x.isSupportURI))), "") == x.output);
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Option.get(Text.decodeUtf8(Blob.fromArray(Base64.decode(x.input))), "") == x.output);
                 };
             });
 
             test("isValid", func() {
                 for (x in encodeTestVectors.vals()) {
-                    assert(Base64.isValid(x.output, x.isSupportURI));
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.isValid(x.output));
                 };
             });
         });
@@ -118,7 +135,8 @@ actor {
 
             test("encode", func() {
                 for (x in encodeTestVectors.vals()) {
-                    assert(Base64.encode(#bytes (x.input), x.isSupportURI) == x.output);
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.encode(#bytes (x.input)) == x.output);
                 };
             });
 
@@ -145,13 +163,15 @@ actor {
 
             test("decode", func() {
                 for (x in decodeTestVectors.vals()) {
-                    assert(Array.equal(Base64.decode(x.input, x.isSupportURI), x.output, Nat8.equal));
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Array.equal(Base64.decode(x.input), x.output, Nat8.equal));
                 };
             });
 
             test("isValid", func() {
                 for (x in encodeTestVectors.vals()) {
-                    assert(Base64.isValid(x.output, x.isSupportURI));
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.isValid(x.output));
                 };
             });
         });
@@ -174,7 +194,8 @@ actor {
 
             test("encode", func() {
                 for (x in encodeTestVectors.vals()) {
-                    let encode = Base64.encode(#text (x.input), x.isSupportURI);
+                    Base64.setSupportURI(x.isSupportURI);
+                    let encode = Base64.encode(#text (x.input));
                     Debug.print(encode);
                     assert(encode == x.output);
                 };
@@ -197,7 +218,8 @@ actor {
 
             test("decode", func() {
                 for (x in decodeTestVectors.vals()) {
-                    let decode = Option.get(Text.decodeUtf8(Blob.fromArray(Base64.decode(x.input, x.isSupportURI))), "");
+                    Base64.setSupportURI(x.isSupportURI);
+                    let decode = Option.get(Text.decodeUtf8(Blob.fromArray(Base64.decode(x.input))), "");
                     Debug.print(decode);
                     assert(decode == x.output);
                 };
@@ -205,7 +227,8 @@ actor {
 
             test("isValid", func() {
                 for (x in encodeTestVectors.vals()) {
-                    assert(Base64.isValid(x.output, x.isSupportURI));
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.isValid(x.output));
                 };
             });
         });
@@ -271,8 +294,9 @@ actor {
 
             test("encode", func() {
                 for (x in encodeTestVectors.vals()) {
-                    let encodeNat8 = Base64.encode(#bytes (x.nat8arr), x.isSupportURI);
-                    let encodeText = Base64.encode(#text (x.text), x.isSupportURI);
+                    Base64.setSupportURI(x.isSupportURI);
+                    let encodeNat8 = Base64.encode(#bytes (x.nat8arr));
+                    let encodeText = Base64.encode(#text (x.text));
                     Debug.print(encodeNat8);
                     Debug.print(encodeText);
                     assert(encodeNat8 == encodeText);
@@ -338,24 +362,79 @@ actor {
 
             test("decode", func() {
                 for (x in decodeTestVectors.vals()) {
-                    let decode = Base64.decode(x.input, false);
+                    Base64.setSupportURI(x.isSupportURI);
+                    let decode = Base64.decode(x.input);
                     assert(Array.equal(decode, x.output, Nat8.equal));
                 };
             });
+            let isValidTestVector = [
+                {
+                    input = "";
+                    output = true;
+                    isSupportURI = false;
+                },
+                {
+                    input = "Z";
+                    output = true;
+                    isSupportURI = false;
+                },
+                {
+                    input = "ZA";
+                    output = true;
+                    isSupportURI = false;
+                },
+                {
+                    input = "ZA=";
+                    output = true;
+                    isSupportURI = false;
+                },
+                {
+                    input = "ZA==";
+                    output = true;
+                    isSupportURI = false;
+                },
+                {
+                    input = "++";
+                    output = false;
+                    isSupportURI = true;
+                },
+                {
+                    input = "+-";
+                    output = false;
+                    isSupportURI = true;
+                },
+                {
+                    input = "+-";
+                    output = false;
+                    isSupportURI = false;
+                },
+                {
+                    input = "--";
+                    output = true;
+                    isSupportURI = true;
+                },
+                {
+                    input = "//";
+                    output = true;
+                    isSupportURI = false;
+                },
+                {
+                    input = "__";
+                    output = true;
+                    isSupportURI = true;
+                },
+                {
+                    input = "/_";
+                    output = false;
+                    isSupportURI = false;
+                }
+            ];
 
             test("isValid", func() {
-                assert(Base64.isValid("", false) == true);
-                assert(Base64.isValid("Z", false) == true);
-                assert(Base64.isValid("ZA", false) == true);
-                assert(Base64.isValid("ZA=", false) == true);
-                assert(Base64.isValid("ZA==", false) == true);
-                assert(Base64.isValid("++", false) == true);
-                assert(Base64.isValid("+-", true) == false);
-                assert(Base64.isValid("+-", false) == false);
-                assert(Base64.isValid("--", true) == true);
-                assert(Base64.isValid("//", false) == true);
-                assert(Base64.isValid("__", true) == true);
-                assert(Base64.isValid("/_", false) == false);
+                for (x in isValidTestVector.vals()) {
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.isValid(x.input) == x.output);
+                };
             });
         });
 
@@ -378,7 +457,8 @@ actor {
 
             test("encode", func() {
                 for (x in encodeTestVectors.vals()) {
-                    let encodeText = Base64.encode(#text (x.input), x.isSupportURI);
+                    Base64.setSupportURI(x.isSupportURI);
+                    let encodeText = Base64.encode(#text (x.input));
                     Debug.print(encodeText);
                     assert(x.output == encodeText);
                 };
@@ -407,7 +487,8 @@ actor {
 
             test("decode", func() {
                 for (x in decodeTestVectors.vals()) {
-                    let decode = Base64.decode(x.input, x.isSupportURI);
+                    Base64.setSupportURI(x.isSupportURI);
+                    let decode = Base64.decode(x.input);
                     Debug.print(Text.join(", ", Array.map<Nat8, Text>(decode, func c = Nat8.toText(c)).vals()));
                     Debug.print(Text.join(", ", Array.map<Nat8, Text>(Blob.toArray(Text.encodeUtf8(x.output)), func c = Nat8.toText(c)).vals()));
                     assert(Array.equal(decode, Blob.toArray(Text.encodeUtf8(x.output)), Nat8.equal));
@@ -416,7 +497,8 @@ actor {
 
             test("isValid", func() {
                 for (x in decodeTestVectors.vals()) {
-                    assert(Base64.isValid(x.name, x.isSupportURI));
+                    Base64.setSupportURI(x.isSupportURI);
+                    assert(Base64.isValid(x.name));
                 };
             });
 
@@ -424,11 +506,13 @@ actor {
 
             test("url-safe", func() {
                 let strA = "//++/++/++//";
-                let notSupportURI = Base64.decode(strA, false);
+                Base64.setSupportURI(false);
+                let notSupportURI = Base64.decode(strA);
                 assert(Array.equal(notSupportURI, expected, Nat8.equal));
 
                 let strB = "__--_--_--__";
-                let supportURI = Base64.decode(strB, true);
+                Base64.setSupportURI(true);
+                let supportURI = Base64.decode(strB);
                 assert(Array.equal(supportURI, expected, Nat8.equal));
             });
 
@@ -438,9 +522,9 @@ actor {
                 for (i in Iter.range(1, MAX_LENGTH)) {
                     big.add(Nat8.fromNat(i % 256));
                 };
-
-                let base64 = Base64.encode(#bytes (Buffer.toArray<Nat8>(big)), false);
-                let base64Decode = Base64.decode(base64, false);
+                Base64.setSupportURI(false);
+                let base64 = Base64.encode(#bytes (Buffer.toArray<Nat8>(big)));
+                let base64Decode = Base64.decode(base64);
                 assert(Array.equal<Nat8>(Buffer.toArray<Nat8>(big), base64Decode, Nat8.equal));
             });
         });

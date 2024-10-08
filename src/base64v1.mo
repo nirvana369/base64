@@ -1,3 +1,14 @@
+/*******************************************************************
+* Copyright         : 2024 nirvana369
+* File Name         : v1engine.mo
+* Description       : Base64 version 1.
+*                    
+* Revision History  :
+* Date				Author    		Comments
+* ---------------------------------------------------------------------------
+* 10/07/2024		nirvana369 		Implement.
+******************************************************************/
+
 import Text "mo:base/Text";
 import Option "mo:base/Option";
 import Array "mo:base/Array";
@@ -11,14 +22,11 @@ import Buffer "mo:base/Buffer";
 import Int "mo:base/Int";
 import Blob "mo:base/Blob";
 import Bool "mo:base/Bool";
-import Debug "mo:base/Debug";
+import Types "./types";
 
 module {
 
-    public type FormatType = {
-        #text : Text;
-        #bytes : [Nat8];
-    };
+    type FormatType = Types.FormatType;
 
     public class Base64(isSupportURI : ?Bool) {
 
@@ -29,13 +37,38 @@ module {
 
         let code = Text.toArray("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
 
-        private func _init(supportURI : () -> ()) {
+        var _isSupportURI = false;
+
+        private func _initSupportURI(isSupportURI : Bool) {
+            if (_isSupportURI != isSupportURI) {
+                _isSupportURI := isSupportURI;
+
+                let b62 = byte2bits<Bool>(62, func z = z, 6);
+                let b63 = byte2bits<Bool>(63, func z = z, 6);
+                let bits62 = Text.join("", Array.map<Bool, Text>(b62, func z = if (z) "1" else "0").vals());
+                let bits63 = Text.join("", Array.map<Bool, Text>(b63, func z = if (z) "1" else "0").vals());
+
+                if (_isSupportURI) {
+                    revLookup.put('-', b62);
+                    revLookup.put('_', b63);
+                    lookup.put(bits62, '-');
+                    lookup.put(bits63, '_');
+                } else {
+                    revLookup.put('+', b62);
+                    revLookup.put('/', b63);
+                    lookup.put(bits62, '+');
+                    lookup.put(bits63, '/');
+                };
+            };
+        };
+
+        private func _init(isSupportURI : Bool) {
             for (i in Iter.range(0, code.size() - 1)) {
                 let b = byte2bits<Bool>(i, func z = z, 6);
                 lookup.put(Text.join("", Array.map<Bool, Text>(b, func z = if (z) "1" else "0").vals()), code[i]);
                 revLookup.put(code[i], b);
             };
-            supportURI();
+            _initSupportURI(isSupportURI);
         };
 
         /**
@@ -45,22 +78,10 @@ module {
         **/
         switch (isSupportURI) {
             case(?sp) {
-                let f = func () = if (sp) {
-                    let b62 = byte2bits<Bool>(62, func z = z, 6);
-                    let b63 = byte2bits<Bool>(63, func z = z, 6);
-                    revLookup.put('-', b62);
-                    revLookup.put('_', b63);
-
-                    let bits62 = Text.join("", Array.map<Bool, Text>(b62, func z = if (z) "1" else "0").vals());
-                    let bits63 = Text.join("", Array.map<Bool, Text>(b63, func z = if (z) "1" else "0").vals());
-                    lookup.put(bits62, '-');
-                    lookup.put(bits63, '_');
-                    
-                } else ();
-                _init(f);
+                _init(sp);
             };
             case (null) {
-                _init(func () = ());
+                _init(_isSupportURI);
             };
         };
 
@@ -82,7 +103,7 @@ module {
                 buf := Buffer.subBuffer<Bool>(buf, 0, 8 * (buf.size() / 8));
             };
             // check special case
-            if (isSupportURI == ?true) {
+            if (_isSupportURI == true) {
                 if (buf.size() % 8 != 0) {
                     buf := Buffer.subBuffer<Bool>(buf, 0, 8 * (buf.size() / 8));
                 };
@@ -124,7 +145,7 @@ module {
                 i += 1;
             };
             // check special case
-            if (isSupportURI == ?false) {
+            if (_isSupportURI == false) {
                 let extraBytes = bits.size() % 3;
             
                 if (extraBytes > 0) {
@@ -161,6 +182,10 @@ module {
                 i += 1;
              };
              true;
+        };
+
+        public func setSupportURI(isSupportURI : Bool) {
+            _initSupportURI(isSupportURI);
         };
     };
 
