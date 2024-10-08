@@ -22,7 +22,7 @@ You need mops installed. In your project directory run [Mops](https://mops.one/)
 mops add base64
 ```
 
-Usage
+### Usage
 
 ```sh
 import {Base64 = Base64Engine, V2} "mo:base64";
@@ -122,6 +122,36 @@ You need mops installed. In your project directory run [Mops](https://mops.one/)
 ```sh
 mops bench
 ```
+
+Instructions
+||1|	10|	100|	500|
+|---|---|---|---|---|
+|EngineV1.Base64.encode|	53_185_077|	527_312_719|	5_268_604_248|	26_339_781_620|
+|EngineV1.Base64.decode|	21_661_160|	198_741_071|	1_969_537_568|	9_839_736_894|
+|EngineV1.Base64.isValid|	22_465_115|	206_773_229|	2_049_853_988|	10_241_327_716|
+|EngineV2.Base64.encode|	1_820_700|	13_680_140|	132_273_539|	659_354_371|
+|EngineV2.Base64.decode|	4_198_463|	24_102_850|	223_145_595|	1_107_779_937|
+|EngineV2.Base64.isValid|	4_014_300|	22_255_564|	204_666_459|	1_015_381_137|
+
+Heap
+||1|	10|	100|	500|
+|---|---|---|---|---|
+|EngineV1.Base64.encode|	244 B|	244 B|	280 B|	280 B|
+|EngineV1.Base64.decode|	352 B|	352 B|	388 B|	388 B|
+|EngineV1.Base64.isValid|	352 B|	352 B|	388 B|	388 B|
+|EngineV2.Base64.encode|	352 B|	352 B|	352 B|	352 B|
+|EngineV2.Base64.decode|	352 B|	352 B|	352 B|	388 B|
+|EngineV2.Base64.isValid|	352 B|	352 B|	352 B|	352 B|
+
+Garbage Collection
+||1|	10|	100|	500|
+|---|---|---|---|---|
+|EngineV1.Base64.encode|	4.2 MiB|	41.91 MiB|	418.98 MiB|	2.05 GiB|
+|EngineV1.Base64.decode|	1.26 MiB|	11.82 MiB|	117.46 MiB|	586.99 MiB|
+|EngineV1.Base64.isValid|	955.36 KiB|	8.58 MiB|	85.02 MiB|	424.79 MiB|
+|EngineV2.Base64.encode|	67.73 KiB|	596.52 KiB|	5.75 MiB|	28.7 MiB|
+|EngineV2.Base64.decode|	150.68 KiB|	736.66 KiB|	6.44 MiB|	31.88 MiB|
+|EngineV2.Base64.isValid|	154.97 KiB|	779.59 KiB|	6.86 MiB|	33.97 MiB|
 
 ## License
 
