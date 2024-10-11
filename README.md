@@ -1,3 +1,4 @@
+[![mops](https://oknww-riaaa-aaaam-qaf6a-cai.raw.ic0.app/badge/mops/base64)](https://mops.one/base64) [![documentation](https://oknww-riaaa-aaaam-qaf6a-cai.raw.ic0.app/badge/documentation/base64)](https://mops.one/base64/docs)
 # Base64
 ### Base64 implementation for Motoko
 
