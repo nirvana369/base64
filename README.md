@@ -26,7 +26,7 @@ mops add base64
 ### Usage
 
 ```sh
-import {Base64 = Base64Engine, V2} "mo:base64";
+import {Base64 = Base64Engine; V2} "mo:base64";
 
 let isSupportURI : Bool = false;
 let base64 = Base64Engine(#v V2, ?isSupportURI);
@@ -48,7 +48,7 @@ Base64.encode(data : FormatType) : Text
 Takes a data by format type (text/ byte array) and returns a base64 string
 
 ```sh
-import {Base64 = Base64Engine, V2} "mo:base64";
+import {Base64 = Base64Engine; V2} "mo:base64";
 
 let isSupportURI : Bool = false;
 let base64 = Base64Engine(#v V2, ?isSupportURI);
@@ -67,7 +67,7 @@ Base64.decode(base64String : Text) : [Nat8]
 Takes a base64 string and returns length of byte array
 
 ```sh
-import {Base64 = Base64Engine, V2} "mo:base64";
+import {Base64 = Base64Engine; V2} "mo:base64";
 
 let isSupportURI : Bool = false;
 let base64 = Base64Engine(#v V2, ?isSupportURI);
@@ -83,7 +83,7 @@ Base64.isValid(base64String : Text) : [Nat8]
 Takes a base64 string and returns a boolean value
 
 ```sh
-import {Base64 = Base64Engine, V2} "mo:base64";
+import {Base64 = Base64Engine; V2} "mo:base64";
 
 let isSupportURI : Bool = false;
 let base64 = Base64Engine(#v V2, ?isSupportURI);
@@ -99,7 +99,7 @@ Base64.setSupportURI(isSupportURI : Bool)
 Base64 uri support ([RFC 4648 §5: base64url (URL- and filename-safe standard)](https://en.wikipedia.org/wiki/Base64#URL_applications))
 
 ```sh
-import {Base64 = Base64Engine, V2} "mo:base64";
+import {Base64 = Base64Engine; V2} "mo:base64";
 
 let isSupportURI : Bool = false;
 let base64 = Base64Engine(#v V2, ?isSupportURI);
