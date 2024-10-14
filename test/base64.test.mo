@@ -19,6 +19,7 @@ import Nat8 "mo:base/Nat8";
 import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import {Base64 = Base64Engine; V1; V2} "../src";
+import Spec "spec";
 
 actor {
 
@@ -526,6 +527,19 @@ actor {
                 let base64 = Base64.encode(#bytes (Buffer.toArray<Nat8>(big)));
                 let base64Decode = Base64.decode(base64);
                 assert(Array.equal<Nat8>(Buffer.toArray<Nat8>(big), base64Decode, Nat8.equal));
+            });
+        });
+
+
+        suite("Base64-4", func() {
+
+            test("decode", func() {
+                Base64.setSupportURI(false);
+                for (x in Spec.testVectors.vals()) {
+                    let decode = Base64.decode(x);
+                    assert(Base64.isValid(x));
+                    assert(x == Base64.encode(#bytes decode));
+                };
             });
         });
 
